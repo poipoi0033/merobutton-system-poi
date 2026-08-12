@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;500;700&display=swap" rel="stylesheet"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>メロボタンツール</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+#meroButtons{
+    display:flex;
+    justify-content:center;
+    gap:40px;
+    margin:10px 0;
+}
+
+.judgeButton{
+    text-align:center;
+}
+
+.judgeButton button{
+    font-size:32px;
+    padding:20px 50px;
+    cursor:pointer;
+    touch-action:manipulation;
+}
+
+#judge1Count,
+#judge2Count{
+    font-size:48px;
+    font-weight:bold;
+    margin:10px;
+}
+
+#meroTotal{
+    font-size:40px;
+    font-weight:bold;
+    text-align:center;
+    margin-top:-30px;
+}
+
+#participants{
+    margin:40px auto;
+    text-align:center;
+}
+
+.participantRow{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:20px;
+    margin:15px 0;
+}
+
+#undoArea{
+    margin:30px auto;
+    text-align:center;
+}
+
+#lastActionText{
+    margin-bottom:10px;
+    font-size:20px;
+}
+
+#limitSetting{
+    text-align:center;
+    margin:20px;
+    font-size:20px;
+}
+
+#enableSoundButton{
+    display:block;
+    margin:20px auto;
+    font-size:18px;
+    padding:10px 20px;
+}
+
+body{
+    color:#666666;
+}
+
+.credit{
+    text-align:center;
+    width:100%;
+    margin:40px auto 20px;
+    color:#888888;
+}
+
+body{
+    font-family:"Kaisei Decol", serif;
+    color:#666666;
+}
+
+body{
+    background-image:url("pattern.png");
+    background-repeat:repeat;
+    background-size:200px auto;
+}
+
+button,
+input,
+select,
+textarea{
+    font-family:inherit;
+}
+
+button{
+    border-radius:18px;
+    background:#F8D5E1;
+    color:#666;
+    border:1px solid #d9a8b9;
+    padding:8px 16px;
+    cursor:pointer;
+    font-family:inherit;
+}
+
+input{
+    border-radius:12px;
+    border:1px solid #d9a8b9;
+    padding:5px 10px;
+    background:rgba(255,255,255,0.85);
+    color:#666;
+    font-family:inherit;
+}
+
+.judgeName{
+    font-size:50px;
+    font-weight:700;
+}
+
+.resetMeroButton{
+    display:block;
+    margin:20px auto;
+}
+
+.meroImageButton{
+    background:transparent;
+    border:none;
+    padding:0;
+    margin:-50px 0 -50px;
+    cursor:pointer;
+}
+
+.meroImageButton img{
+    display:block;
+    width:200px;
+    height:auto;
+}
+
+.meroImageButton:active{
+    transform:scale(0.94);
+}
+
+</style>
+</head>
+
+<body>
+
+<button id="enableSoundButton" onclick="enableSounds()">
+    🌹 音声を有効化
+</button>
+
+<div id="meroButtons">
+
+    <div class="judgeButton">
+        <div class="judgeName">ぽい</div>
+        <div id="judge1Count">0</div>
+<button class="meroImageButton" onclick="pushMero('judge1')">
+    <img src="mero_button.png" alt="メロ！">
+</button>
+    </div>
+
+    <div class="judgeButton">
+        <div class="judgeName">ぶらい</div>
+        <div id="judge2Count">0</div>
+<button class="meroImageButton" onclick="pushMero('judge2')">
+    <img src="mero_button.png" alt="メロ！">
+</button>    </div>
+
+</div>
+
+<div id="meroTotal">
+    合算：<span id="totalCount">0</span>
+</div>
+
+<button class="resetMeroButton" onclick="resetCurrentMero()">
+    現在のメロ数をリセット
+</button>
+
+<div id="limitSetting">
+    <label>
+        <input type="checkbox" id="limitEnabled" checked>
+        1人20点上限を有効にする
+    </label>
+</div>
+
+<div id="participants">
+
+  <h2>参加者累計</h2>
+
+<div class="participantRow">
+    <input id="player1NameInput" value="参加者1">
+    <button onclick="setPlayerName('player1')">名前変更</button>
+
+    <span>累計：<span id="player1Total">0</span></span>
+    <button onclick="addTotalToPlayer('player1')">合算を加算</button>
+</div>
+
+  <div class="participantRow">
+    <input id="player2NameInput" value="参加者2">
+    <button onclick="setPlayerName('player2')">名前変更</button>
+
+    <span>累計：<span id="player2Total">0</span></span>
+    <button onclick="addTotalToPlayer('player2')">合算を加算</button>
+  </div>
+
+  <div class="participantRow">
+    <input id="player3NameInput" value="参加者3">
+    <button onclick="setPlayerName('player3')">名前変更</button>
+
+    <span>累計：<span id="player3Total">0</span></span>
+    <button onclick="addTotalToPlayer('player3')">合算を加算</button>
+  </div>
+
+  <div class="participantRow">
+    <input id="player4NameInput" value="参加者4">
+    <button onclick="setPlayerName('player4')">名前変更</button>
+
+    <span>累計：<span id="player4Total">0</span></span>
+    <button onclick="addTotalToPlayer('player4')">合算を加算</button>
+  </div>
+
+<div id="undoArea">
+    <div id="lastActionText">直前操作：なし</div>
+    <button onclick="undoLastAdd()">直前の加算を取り消す</button>
+</div>
+
+<button class="resetTotalButton" onclick="resetAllTotals()">
+    参加者累計を一括リセット
+</button>
+
+</div>
+
+<p class="credit">
+Created by Poi & ChatGPT
+</p>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    onValue,
+    runTransaction,
+    set,
+    push,
+    onChildAdded,
+    get
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+
+// ★ここは前回使っていたFirebase設定をそのまま入れてください
+const firebaseConfig = {
+  apiKey: "AIzaSyBL-VOrxHb9peeM94B2mVHlj1u7tmMGafw",
+  authDomain: "oogiri-system.firebaseapp.com",
+  databaseURL:"https://oogiri-system-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "oogiri-system",
+  storageBucket: "oogiri-system.firebasestorage.app",
+  messagingSenderId: "96017540049",
+  appId: "1:96017540049:web:0befbba9f7810a725436f0"
+};
+
+
+// Firebase開始
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+
+// ==============================
+// メロボタン
+// ==============================
+
+window.pushMero = async function(judge){
+
+    const countRef =
+        ref(db, "heSystem/current/" + judge);
+
+    try{
+        // 点数加算
+        await runTransaction(countRef, (current)=>{
+            return (current || 0) + 1;
+        });
+
+        // SEイベント発行
+        await push(
+            ref(db, "heSystem/events"),
+            {
+                judge: judge,
+                time: Date.now()
+            }
+        );
+
+    }catch(error){
+        console.error("メロ加算エラー:", error);
+    }
+};
+
+
+// ==============================
+// リアルタイム表示
+// ==============================
+
+onValue(
+    ref(db, "heSystem/current"),
+
+    (snapshot)=>{
+
+        const data = snapshot.val() || {};
+
+        const judge1 = data.judge1 || 0;
+        const judge2 = data.judge2 || 0;
+
+currentJudge1 = judge1;
+currentJudge2 = judge2;
+
+        document.getElementById("judge1Count").innerText =
+            judge1;
+
+        document.getElementById("judge2Count").innerText =
+            judge2;
+
+const limitEnabled =
+    document.getElementById("limitEnabled").checked;
+
+const displayTotal = limitEnabled
+    ? Math.min(judge1, 20) + Math.min(judge2, 20)
+    : judge1 + judge2;
+
+document.getElementById("totalCount").innerText =
+    displayTotal;
+    },
+
+    (error)=>{
+        console.error("Firebase読み込みエラー:", error);
+    }
+);
+
+onValue(ref(db, "heSystem/participants"), (snapshot)=>{
+
+    const data = snapshot.val() || {};
+
+    document.getElementById("player1Total").innerText =
+        data.player1?.total || 0;
+
+    document.getElementById("player2Total").innerText =
+        data.player2?.total || 0;
+
+    document.getElementById("player3Total").innerText =
+        data.player3?.total || 0;
+
+    document.getElementById("player4Total").innerText =
+        data.player4?.total || 0;
+
+    document.getElementById("player1NameInput").value =
+        data.player1?.name || "参加者1";
+
+    document.getElementById("player2NameInput").value =
+        data.player2?.name || "参加者2";
+
+    document.getElementById("player3NameInput").value =
+        data.player3?.name || "参加者3";
+
+    document.getElementById("player4NameInput").value =
+        data.player4?.name || "参加者4";
+});
+
+let currentJudge1 = 0;
+let currentJudge2 = 0;
+
+window.addTotalToPlayer = async function(player){
+
+    const amount = getScoringTotal();
+
+    if(amount === 0){
+        alert("現在の合算が0です！");
+        return;
+    }
+
+    const ok = confirm(
+        amount + "点をこの参加者に加算します。\nよろしいですか？"
+    );
+
+    if(!ok){
+        return;
+    }
+
+    const playerRef =
+        ref(db, "heSystem/participants/" + player + "/total");
+
+    let beforePlayerTotal = 0;
+
+    // 参加者の現在累計を取得
+    await runTransaction(playerRef, (current)=>{
+        beforePlayerTotal = current || 0;
+        return beforePlayerTotal + amount;
+    });
+
+    // Undo用に「加算前の状態」を保存
+    await set(ref(db, "heSystem/lastAction"), {
+        type: "addTotal",
+        player: player,
+        amount: amount,
+        playerBefore: beforePlayerTotal,
+        judge1Before: currentJudge1,
+        judge2Before: currentJudge2,
+        time: Date.now()
+    });
+
+    // 加算後に現在値を0へ
+    await set(ref(db, "heSystem/current"), {
+        judge1: 0,
+        judge2: 0
+    });
+};
+
+window.undoLastAdd = async function(){
+
+    const actionRef = ref(db, "heSystem/lastAction");
+
+    let action = null;
+
+    await runTransaction(actionRef, (current)=>{
+        action = current;
+        return current;
+    });
+
+    if(!action || action.type !== "addTotal"){
+        alert("取り消せる加算がありません！");
+        return;
+    }
+
+    // 参加者累計を加算前へ戻す
+    await set(
+        ref(db, "heSystem/participants/" + action.player + "/total"),
+        action.playerBefore
+    );
+
+    // 審査員の押下数も加算前へ戻す
+    await set(ref(db, "heSystem/current"), {
+        judge1: action.judge1Before,
+        judge2: action.judge2Before
+    });
+
+    // 二重Undo防止
+    await set(ref(db, "heSystem/lastAction"), {
+        type: "undone",
+        message: action.amount + "点の加算を取り消しました",
+        time: Date.now()
+    });
+};
+
+onValue(ref(db, "heSystem/lastAction"), (snapshot)=>{
+
+    const action = snapshot.val();
+
+    if(!action){
+        document.getElementById("lastActionText").innerText =
+            "直前操作：なし";
+        return;
+    }
+
+    if(action.type === "addTotal"){
+        document.getElementById("lastActionText").innerText =
+            "直前操作：" + action.amount + "点を加算";
+    }
+
+    if(action.type === "undone"){
+        document.getElementById("lastActionText").innerText =
+            "直前操作：" + action.message;
+    }
+});
+
+const limitCheckbox = document.getElementById("limitEnabled");
+
+limitCheckbox.addEventListener("change", ()=>{
+    set(
+        ref(db, "heSystem/settings/limitEnabled"),
+        limitCheckbox.checked
+    );
+});
+
+onValue(
+    ref(db, "heSystem/settings/limitEnabled"),
+    (snapshot)=>{
+        const enabled = snapshot.val();
+
+        // 初回でまだFirebaseに設定がない場合
+        if(enabled === null){
+            set(
+                ref(db, "heSystem/settings/limitEnabled"),
+                true
+            );
+            return;
+        }
+
+        limitCheckbox.checked = enabled;
+    }
+);
+
+function getScoringTotal(){
+
+    const limitEnabled =
+        document.getElementById("limitEnabled").checked;
+
+    if(limitEnabled){
+        return (
+            Math.min(currentJudge1, 20) +
+            Math.min(currentJudge2, 20)
+        );
+    }
+
+    return currentJudge1 + currentJudge2;
+}
+
+const judge1Sound = new Audio("judge1.mp3");
+const judge2Sound = new Audio("judge2.mp3");
+
+judge1Sound.preload = "auto";
+judge2Sound.preload = "auto";
+
+let soundEnabled = false;
+
+window.enableSounds = async function(){
+
+    try{
+        // ブラウザに「このページは音を鳴らしていい」と認識させる
+        judge1Sound.volume = 0;
+        judge2Sound.volume = 0;
+
+        await judge1Sound.play();
+        judge1Sound.pause();
+        judge1Sound.currentTime = 0;
+
+        await judge2Sound.play();
+        judge2Sound.pause();
+        judge2Sound.currentTime = 0;
+
+        judge1Sound.volume = 1;
+        judge2Sound.volume = 1;
+
+        soundEnabled = true;
+
+        document.getElementById("enableSoundButton").innerText =
+            "☺️ 音声ON";
+
+    }catch(error){
+        console.error("音声有効化エラー:", error);
+    }
+};
+
+const eventsRef = ref(db, "heSystem/events");
+
+const existingEventKeys = new Set();
+
+get(eventsRef).then((snapshot)=>{
+
+    // ページを開く前に存在していた古いSEは鳴らさない
+    snapshot.forEach((child)=>{
+        existingEventKeys.add(child.key);
+    });
+
+    onChildAdded(eventsRef, (snapshot)=>{
+
+        // 読み込み時の古いイベントは無視
+        if(existingEventKeys.has(snapshot.key)){
+            return;
+        }
+
+        const event = snapshot.val();
+
+        if(!soundEnabled){
+            return;
+        }
+
+if(event.judge === "judge1"){
+    judge1Sound.currentTime = 0;
+    judge1Sound.play().catch(error=>{
+        console.error("judge1 SE再生失敗:", error);
+    });
+}
+
+if(event.judge === "judge2"){
+    judge2Sound.currentTime = 0;
+    judge2Sound.play().catch(error=>{
+        console.error("judge2 SE再生失敗:", error);
+    });
+}
+    });
+
+});
+
+window.setPlayerName = function(player){
+
+    const input =
+        document.getElementById(player + "NameInput");
+
+    const name = input.value.trim();
+
+    if(name === ""){
+        alert("名前を入力してください");
+        return;
+    }
+
+    set(
+        ref(db, "heSystem/participants/" + player + "/name"),
+        name
+    );
+};
+
+window.resetCurrentMero = async function(){
+
+    const ok = confirm(
+        "現在のメロ数を0に戻します。\nよろしいですか？"
+    );
+
+    if(!ok){
+        return;
+    }
+
+    await set(ref(db, "heSystem/current"), {
+        judge1: 0,
+        judge2: 0
+    });
+};
+
+window.resetAllTotals = async function(){
+
+    const ok = confirm(
+        "参加者4人の累計をすべて0に戻します。\n本当によろしいですか？"
+    );
+
+    if(!ok){
+        return;
+    }
+
+    await set(ref(db, "heSystem/participants/player1/total"), 0);
+    await set(ref(db, "heSystem/participants/player2/total"), 0);
+    await set(ref(db, "heSystem/participants/player3/total"), 0);
+    await set(ref(db, "heSystem/participants/player4/total"), 0);
+};
+
+</script>
+
+</body>
+</html>
