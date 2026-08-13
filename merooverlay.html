@@ -255,6 +255,43 @@ get(eventsRef).then((snapshot)=>{
 
 });
 
+let soundEnabled = false;
+
+window.enableSounds = async function(){
+
+    try{
+
+        judge1Sound.volume = 0;
+        judge2Sound.volume = 0;
+        addTotalSound.volume = 0;
+
+        await judge1Sound.play();
+        judge1Sound.pause();
+        judge1Sound.currentTime = 0;
+
+        await judge2Sound.play();
+        judge2Sound.pause();
+        judge2Sound.currentTime = 0;
+
+        await addTotalSound.play();
+        addTotalSound.pause();
+        addTotalSound.currentTime = 0;
+
+        judge1Sound.volume = 1;
+        judge2Sound.volume = 1;
+        addTotalSound.volume = 1;
+
+        soundEnabled = true;
+
+        document.getElementById("enableSoundButton").innerText =
+            "🔊 音声ON";
+
+    }catch(error){
+        console.error("音声有効化エラー:", error);
+    }
+
+};
+
 </script>
 
 </body>
