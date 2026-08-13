@@ -424,6 +424,15 @@ window.addTotalToPlayer = async function(player){
         judge1: 0,
         judge2: 0
     });
+
+await push(
+    ref(db, "heSystem/events"),
+    {
+        type: "addTotal",
+        time: Date.now()
+    }
+);
+
 };
 
 window.undoLastAdd = async function(){
@@ -527,9 +536,11 @@ function getScoringTotal(){
 
 const judge1Sound = new Audio("judge1.mp3");
 const judge2Sound = new Audio("judge2.mp3");
+const addTotalSound = new Audio("addtotal.mp3");
 
 judge1Sound.preload = "auto";
 judge2Sound.preload = "auto";
+addTotalSound.preload = "auto";
 
 let soundEnabled = false;
 
@@ -539,6 +550,7 @@ window.enableSounds = async function(){
         // ブラウザに「このページは音を鳴らしていい」と認識させる
         judge1Sound.volume = 0;
         judge2Sound.volume = 0;
+	addTotalSound.volume = 0;
 
         await judge1Sound.play();
         judge1Sound.pause();
@@ -548,8 +560,13 @@ window.enableSounds = async function(){
         judge2Sound.pause();
         judge2Sound.currentTime = 0;
 
+	await addTotalSound.play();
+	addTotalSound.pause();
+	addTotalSound.currentTime = 0;
+
         judge1Sound.volume = 1;
         judge2Sound.volume = 1;
+	addTotalSound.volume = 1;
 
         soundEnabled = true;
 
@@ -577,7 +594,14 @@ get(eventsRef).then((snapshot)=>{
         // 読み込み時の古いイベントは無視
         if(existingEventKeys.has(snapshot.key)){
             return;
-        }
+       
+if(event.type === "addTotal"){
+    addTotalSound.currentTime = 0;
+    addTotalSound.play().catch(error=>{
+        console.error("加算SE再生失敗:", error);
+    });
+}
+ }
 
         const event = snapshot.val();
 
@@ -598,6 +622,14 @@ if(event.judge === "judge2"){
         console.error("judge2 SE再生失敗:", error);
     });
 }
+
+if(event.type === "addTotal"){
+    addTotalSound.currentTime = 0;
+    addTotalSound.play().catch(error=>{
+        console.error("加算SE再生失敗:", error);
+    });
+}
+
     });
 
 });
